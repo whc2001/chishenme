@@ -1,10 +1,26 @@
-    $(function () {
+$(function () {
     var run = 0,
         heading = $("h1"),
-        timer;
+        timer,
+        list = [];
+
+    var listFile = new XMLHttpRequest();
+    listFile.onreadystatechange = function () {
+        if (listFile.readyState == 4) {
+            if (listFile.status == 200) {
+                list = listFile.responseText.trim().split("\t");
+                console.log(list);
+            }
+            else {
+                alert(`读入列表失败: ${listFile.status}`);
+                list = $("#list").val().replace(/ +/g, " ").replace(/^ | $/g, "").split(" ");
+            }
+        }
+    };
+    listFile.open("GET", "list.tsv", true);
+    listFile.send();
 
     $("#start").click(function () {
-        var list = $("#list").val().replace(/ +/g, " ").replace(/^ | $/g, "").split(" ");
         if (!run) {
             heading.html(heading.html().replace("吃这个！", "吃什么？"));
             $(this).val("停止");
@@ -28,7 +44,7 @@
             }, 50);
             run = 1;
         } else {
-           heading.html(heading.html().replace("吃什么？", "吃这个！"));
+            heading.html(heading.html().replace("吃什么？", "吃这个！"));
             $(this).val("不行，换一个");
             clearInterval(timer);
             run = 0;
